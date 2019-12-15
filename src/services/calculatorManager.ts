@@ -1,6 +1,10 @@
 import { BehaviorSubject, merge } from "rxjs";
 import { CalButtonValue } from "../components/CalButton/CalButton";
-
+import { Decimal } from "decimal.js";
+/**
+ * Decimal.js is used here to get precise
+ * calculations as 0.1 + 0.2 = 0.30000000000000004
+ */
 export enum symbols {
   none = "NONE",
   plus = "PLUS",
@@ -66,7 +70,11 @@ function CalculatorManager() {
     const inputsComplete = firstValue && secondValue;
 
     if (equalsPressed) {
-      total = calculator(Number(firstValue), symbol, Number(secondValue));
+      total = calculator(
+        new Decimal(firstValue),
+        symbol,
+        new Decimal(secondValue)
+      );
       firstValue = `${total}`;
       secondValue = ``;
       symbol = value;
@@ -94,7 +102,11 @@ function CalculatorManager() {
     }
 
     if (inputsComplete) {
-      total = calculator(Number(firstValue), symbol, Number(secondValue));
+      total = calculator(
+        new Decimal(firstValue),
+        symbol,
+        new Decimal(secondValue)
+      );
       firstValue = `${total}`;
       secondValue = "";
       editing = editingValue.second;
@@ -113,19 +125,19 @@ function CalculatorManager() {
   }
 
   function calculator(
-    firstValue: number,
+    firstValue: Decimal,
     symbol: symbols,
-    secondValue: number
+    secondValue: Decimal
   ) {
     switch (symbol) {
       case symbols.plus:
-        return firstValue + secondValue;
+        return firstValue.add(secondValue).toNumber();
       case symbols.minus:
-        return firstValue - secondValue;
+        return firstValue.minus(secondValue).toNumber();
       case symbols.divide:
-        return firstValue / secondValue;
+        return firstValue.dividedBy(secondValue).toNumber();
       case symbols.times:
-        return firstValue * secondValue;
+        return firstValue.times(secondValue).toNumber();
       default:
         return 0;
     }
